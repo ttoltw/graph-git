@@ -1,0 +1,69 @@
+{
+  "name": "graph-git",
+  "productName": "GraphGit",
+  "version": "0.1.0",
+  "description": "A desktop application for visualizing Git repositories as interactive directed graphs. Built with Electron, React, and TypeScript. Provides a cross-platform alternative to TortoiseGit's Revision Graph feature.",
+  "main": ".vite/build/main.js",
+  "homepage": "https://github.com/ttoltw/graph-git#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ttoltw/graph-git.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ttoltw/graph-git/issues"
+  },
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
+  },
+  "keywords": [
+    "git",
+    "visualization",
+    "graph",
+    "electron",
+    "react",
+    "typescript",
+    "repository",
+    "commit-history",
+    "cross-platform",
+    "desktop-app"
+  ],
+  "author": {
+    "name": "ttol.tw",
+    "email": "ttol.tw@gmail.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.0",
+    "@electron-forge/maker-deb": "^7.8.0",
+    "@electron-forge/maker-rpm": "^7.8.0",
+    "@electron-forge/maker-squirrel": "^7.8.0",
+    "@electron-forge/maker-zip": "^7.8.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
+    "@electron-forge/plugin-fuses": "^7.8.0",
+    "@electron-forge/plugin-vite": "^7.8.0",
+    "@electron/fuses": "^1.8.0",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "electron": "35.1.3",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.17"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^1.1.4",
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}

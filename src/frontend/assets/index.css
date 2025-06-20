@@ -1,0 +1,98 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  margin: 0;
+  padding: 0; /* Remove padding to prevent app overflow */
+  height: 100vh; /* Ensure body takes full viewport height */
+  overflow: hidden; /* Prevent scrolling on the body */
+}
+
+.git-ref:hover{
+  cursor: pointer;
+  stroke: black;
+  stroke-width: 3px;
+}
+.git-ref{
+  stroke-width: 1px;
+}
+.git-ref > text {
+  stroke: none;
+}
+.git-ref > rect, .git-ref > path {
+  stroke: black;
+  fill: white;
+}
+
+.git-ref-stash > rect, .git-ref-stash > path {
+  fill: lightgray;
+}
+.git-ref-stash > text {
+  fill: black;
+}
+
+.git-ref-remote > rect, .git-ref-remote > path {
+  fill: #ffddaa;
+}
+
+.git-ref-tag > rect, .git-ref-tag > path {
+  fill: yellow;
+}
+.git-ref-tag > text {
+  fill: black;
+}
+
+.git-ref-head > rect, .git-ref-head > path {
+  fill: red;
+}
+.git-ref-head > text {
+  fill: white;
+}
+
+.git-ref-branch > rect, .git-ref-branch > path {
+  fill: green;
+}
+.git-ref-branch > text {
+  fill: white;
+}
+
+.git-ref-commit > rect, .git-ref-commit > path {
+  fill: #E8E8FF;
+}
+.git-ref-commit > text {
+  fill: black;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.toolbar {
+    flex: 0 0 auto;
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.status-bar {
+    flex: 0 0 auto;
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    text-align: center;
+}
+
+.bottom-container {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f4f4;
+}
