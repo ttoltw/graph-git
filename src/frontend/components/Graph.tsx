@@ -1,7 +1,8 @@
 import Dagre from "@dagrejs/dagre";
 import React, { ReactNode } from "react";
+import type { GitLog } from '@g/git-wrap';
 
-type NodeProps = Dagre.Node<GitRef>;
+type NodeProps = Dagre.Node<GitLog>;
 
 const Node: React.FC<NodeProps> = ({
   refs,
@@ -134,7 +135,7 @@ const ArrowHead: React.FC = () => {
     </marker>
   );
 };
-export const Graph: React.FC<{ graph: Dagre.graphlib.Graph<GitRef> , scrollTo?: (x: number, y: number) => void }> = ({
+export const Graph: React.FC<{ graph: Dagre.graphlib.Graph<GitLog> , scrollTo?: (x: number, y: number) => void }> = ({
   graph,
   scrollTo,
 }) => {

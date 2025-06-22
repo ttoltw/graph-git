@@ -61,9 +61,14 @@
     "vite": "^5.4.17"
   },
   "dependencies": {
+    "@g/git-wrap": "workspace:*",
+    "@g/mutex": "workspace:*",
     "@dagrejs/dagre": "^1.1.4",
     "electron-squirrel-startup": "^1.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

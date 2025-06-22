@@ -1,7 +1,7 @@
 /// <reference types="@types/node" />
 
 import { BrowserWindow, dialog, ipcMain, app } from "electron";
-import { EazyGit, LogOptions } from "./eazy-git";
+import GitWrap, { LogOptions } from "@g/git-wrap";
 import { Store }  from "./store";
 import fs from "node:fs";
 
@@ -61,8 +61,8 @@ async function gitLog(folder: string, options?:LogOptions ) {
           return null;
         }
         console.log(`[get-log] Selected folder: ${folder}`);
-        const git = new EazyGit(folder);
-        const log = await git.getLog(options);
+        const git = new GitWrap(folder);
+        const log = await git.log(options);
         return log;
 }
 

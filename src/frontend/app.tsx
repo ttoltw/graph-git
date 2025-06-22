@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import Dagre from '@dagrejs/dagre';
 import { Graph } from './components/Graph';
 import { useConfig } from './hooks';
+import type { GitLog } from '@g/git-wrap';
 
 const App: React.FC = () => {
     const [cwd, setCwd] = useConfig<string | null>("cwd", null);
     const [recent, setRecent] = useConfig<string[]>("recent", []);
-    const [graph, setGraph] = useState<Dagre.graphlib.Graph<GitRef> | null>(null);
+    const [graph, setGraph] = useState<Dagre.graphlib.Graph<GitLog> | null>(null);
     const [error, setError] = useState<string | null>(null);
     const refContainer = React.useRef<HTMLDivElement>(null);
     const onOpenBtn = async () => {
@@ -33,7 +34,7 @@ const App: React.FC = () => {
             console.log(`Selected folder: ${folder}`);
             const log = await bridge.git.getLog(folder);
 
-            const graph = new Dagre.graphlib.Graph<GitRef>();
+            const graph = new Dagre.graphlib.Graph<GitLog>();
             graph.setGraph({ rankdir: 'TD' });
             graph.setDefaultEdgeLabel(() => ({}));
             log.forEach((log) => {
