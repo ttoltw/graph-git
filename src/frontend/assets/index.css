@@ -24,7 +24,7 @@ body {
 }
 
 .git-ref-stash > rect, .git-ref-stash > path {
-  fill: lightgray;
+  fill: #808080;
 }
 .git-ref-stash > text {
   fill: black;
@@ -35,21 +35,21 @@ body {
 }
 
 .git-ref-tag > rect, .git-ref-tag > path {
-  fill: yellow;
+  fill: #FFFF00;
 }
 .git-ref-tag > text {
   fill: black;
 }
 
 .git-ref-head > rect, .git-ref-head > path {
-  fill: red;
+  fill: #FF0000;
 }
 .git-ref-head > text {
   fill: white;
 }
 
 .git-ref-branch > rect, .git-ref-branch > path {
-  fill: green;
+  fill: #00C300;
 }
 .git-ref-branch > text {
   fill: white;

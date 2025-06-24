@@ -1,8 +1,8 @@
 /// <reference types="@types/node" />
 
 import { BrowserWindow, dialog, ipcMain, app } from "electron";
-import GitWrap, { LogOptions } from "@g/git-wrap";
-import { Store }  from "./store";
+import { GitWrap, LogOptions } from "@g/git-wrap";
+import { Store } from "./store";
 import fs from "node:fs";
 
 const store = new Store();
@@ -21,7 +21,7 @@ export function init(window: BrowserWindow) {
     console.log(`[get-log] Selected folder: ${folder}`);
     return gitLog(folder);
   });
-  if(initialized) return;
+  if (initialized) return;
 
   ipcMain.handle("config:get", async (event, ...args) => {
     return configGet();
@@ -35,7 +35,7 @@ export function init(window: BrowserWindow) {
   if (!fs.existsSync(userDataPath)) {
     console.log("Creating user data folder");
     fs.mkdirSync(userDataPath, { recursive: true });
-  }else if (fs.existsSync(configPath)) {
+  } else if (fs.existsSync(configPath)) {
     console.log("Loading config file");
     const data = fs.readFileSync(configPath, "utf-8");
     store.set(JSON.parse(data));
@@ -55,15 +55,15 @@ async function getFolder(window: BrowserWindow): Promise<string | null> {
   console.log("User canceled the dialog or no folder selected");
   return null;
 }
-async function gitLog(folder: string, options?:LogOptions ) {
-        if (!folder) {
-          console.error('[get-log] No folder selected');
-          return null;
-        }
-        console.log(`[get-log] Selected folder: ${folder}`);
-        const git = new GitWrap(folder);
-        const log = await git.log(options);
-        return log;
+async function gitLog(folder: string, options?: LogOptions) {
+  if (!folder) {
+    console.error('[get-log] No folder selected');
+    return null;
+  }
+  console.log(`[get-log] Selected folder: ${folder}`);
+  const git = new GitWrap(folder);
+  const log = await git.log(options);
+  return log;
 }
 
 

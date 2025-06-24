@@ -8,7 +8,7 @@ import type { GitLog } from '@g/git-wrap';
 const App: React.FC = () => {
     const [cwd, setCwd] = useConfig<string | null>("cwd", null);
     const [recent, setRecent] = useConfig<string[]>("recent", []);
-    const [graph, setGraph] = useState<Dagre.graphlib.Graph<GitLog> | null>(null);
+    const [graph, setGraph] = useState<Dagre.graphlib.Graph<{ log: GitLog }> | null>(null);
     const [error, setError] = useState<string | null>(null);
     const refContainer = React.useRef<HTMLDivElement>(null);
     const onOpenBtn = async () => {
@@ -34,13 +34,17 @@ const App: React.FC = () => {
             console.log(`Selected folder: ${folder}`);
             const log = await bridge.git.getLog(folder);
 
-            const graph = new Dagre.graphlib.Graph<GitLog>();
-            graph.setGraph({ rankdir: 'TD' });
+            const graph = new Dagre.graphlib.Graph<{ log: GitLog }>();
+            graph.setGraph({ rankdir: 'TD' });  // top to bottom
             graph.setDefaultEdgeLabel(() => ({}));
             log.forEach((log) => {
-                const labels = log.refs || [log.hash.substring(0, 7)];
-                const refs = labels.map((ref: string) => ref.trim()).filter((ref: string) => ref);
-                graph.setNode(log.hash, { refs, width: Math.max(100, ...refs.map(ref => ref.length * 10)), height: 20 * refs.length });
+                const refs = log.refs?.length ? log.refs.map(ref => ref.name) : [log.hash.substring(0, 7)];
+
+                graph.setNode(log.hash, {
+                    log,
+                    width: Math.max(100, ...refs.map(ref => ref.length * 10)),
+                    height: 20 * refs.length
+                });
                 if (log.parents) {
                     log.parents.forEach((parent: string) => {
                         graph.setEdge(log.hash, parent);
@@ -67,12 +71,12 @@ const App: React.FC = () => {
             <div className="toolbar">
                 <button title='open git folder' onClick={onOpenBtn}>open</button>
                 <button title='reload' disabled={!cwd} onClick={() => onReloadBtn()}>reload</button>
-                <select title='recent folders' 
+                <select title='recent folders'
                     value={cwd || ''}
                     onChange={(e) => {
                         onReloadBtn(e.target.value);
                     }}
-                    >
+                >
                     {recent.map((folder, index) => (
                         <option key={index} value={folder} onClick={() => onReloadBtn(folder)}>{folder}</option>
                     ))}
@@ -84,8 +88,8 @@ const App: React.FC = () => {
                     <div className="svg-container">
                         <Graph graph={graph} scrollTo={(x, y) => {
                             const cnt = refContainer.current;
-                                console.log('scrollTo', x, y, cnt);
-                            
+                            console.log('scrollTo', x, y, cnt);
+
                             if (cnt) {
                                 cnt.scrollTo({
                                     top: y - cnt.clientHeight / 2,

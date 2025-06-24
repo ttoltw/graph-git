@@ -1,27 +1,46 @@
 import Dagre from "@dagrejs/dagre";
 import React, { ReactNode } from "react";
-import type { GitLog } from '@g/git-wrap';
+import type { GitLog, GitRef } from '@g/git-wrap';
 
-type NodeProps = Dagre.Node<GitLog>;
+type NodeData = {
+  log: GitLog;
+}
+
+type NodeProps = Dagre.Node<NodeData>;
 
 const Node: React.FC<NodeProps> = ({
-  refs,
-  hash,
+  log,
   width,
   height,
   x,
   y,
 }) => {
   // Helper function to determine the CSS class based on ref name
-  const getRefClass = (ref: string): string => {
-    if (ref.startsWith("tag:")) return "git-ref-tag";
-    if (ref.startsWith("HEAD ->")) return "git-ref-head";
-    if (ref.startsWith("origin")) return "git-ref-remote";
-    if (ref.includes("stash")) return "git-ref-stash";
-    if (/^[0-9a-f]{7,40}$/.test(ref)) return "git-ref-commit";
-    return "git-ref-branch";
+  const getRefClass = (ref: GitRef) => {
+    let className = "git-ref-other";
+    if (ref.current) {
+      className = "git-ref-head";
+    } else if (ref.type === "commit") {
+      className = "git-ref-commit";
+    } else if (ref.type === "tag") {
+      className = "git-ref-tag";
+    } else if (ref.type === "branch") {
+      className = "git-ref-branch";
+    } else if (ref.type === "remote") {
+      className = "git-ref-remote";
+    } else if (ref.type === "stash") {
+      className = "git-ref-stash";
+    }
+    return className;
   };
-  if (!refs || refs.length === 0) refs = [hash.substring(0, 7)];
+
+  const refs = log?.refs || [{
+    hash: log.hash,
+    name: log.hash.substring(0, 7),
+    type: "commit",
+    remote: false,
+    fullname: log.hash,
+  }];
   return (
     <g transform={`translate(${x},${y})`}>
       {refs.map((ref, i) => {
@@ -29,8 +48,8 @@ const Node: React.FC<NodeProps> = ({
         const rectY = -height / 2 + i * 20;
         return (
           <RoundedLabel
-            key={ref}
-            label={ref}
+            key={ref.fullname}
+            label={ref.name}
             x={-width / 2}
             y={rectY}
             className={`git-ref ${refClass}`}
@@ -135,23 +154,22 @@ const ArrowHead: React.FC = () => {
     </marker>
   );
 };
-export const Graph: React.FC<{ graph: Dagre.graphlib.Graph<GitLog> , scrollTo?: (x: number, y: number) => void }> = ({
+export const Graph: React.FC<{ graph: Dagre.graphlib.Graph<NodeData>, scrollTo?: (x: number, y: number) => void }> = ({
   graph,
   scrollTo,
 }) => {
   return (
     <svg width={graph.graph().width} height={graph.graph().height} onDoubleClick={(e) => {
-      console.log("double click", e , scrollTo);
       e.preventDefault();
       e.stopPropagation();
       // scroll to the head node, make it the center of the screen
-      const headNode = graph.nodes().find((node) => graph.node(node).refs?.some(ref => ref.startsWith("HEAD ->")));
+      const headNode = graph.nodes().find((node) => graph.node(node).log.refs?.some(ref => ref.current));
       if (headNode) {
         const node = graph.node(headNode);
         const svg = e.currentTarget;
         const { x, y } = node;
-  
-        scrollTo && scrollTo(x , y);
+
+        scrollTo && scrollTo(x, y);
       }
     }}>
       <defs>
