@@ -10,6 +10,9 @@ contextBridge.exposeInMainWorld('bridge', {
         getLog: async (folder:string) => {
             return await ipcRenderer.invoke('git:log', folder);
         },
+        fetch: async (folder:string, remote?: string) => {
+            return await ipcRenderer.invoke('git:fetch', folder, remote);
+        },
     },
     config: {
         get: async () => {

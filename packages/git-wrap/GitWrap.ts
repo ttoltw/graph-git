@@ -111,13 +111,9 @@ export class GitWrap {
     }
 
     async * raw(...args: string[]): AsyncGenerator<string> {
-        yield* GitWrap.raw(this.cwd, args);
-    }
-
-    static async * raw(cwd: string, args: string[]): AsyncGenerator<string> {
         const release = await GitWrap.lock.acquire();
         try {
-            yield* asyncSpawn("git", args, { cwd });
+            yield* asyncSpawn("git", args, { cwd: this.cwd });
         } finally {
             release();
         }
@@ -189,6 +185,19 @@ export class GitWrap {
             throw error;
         }
     }
+
+    public async fetch(remote?: string): Promise<void> {
+        const args = ["fetch"];
+        if (remote) {
+            args.push(remote);
+        }
+
+        // Execute fetch command and wait for completion
+        for await (const line of this.raw(...args)) {
+            // Just consume the output, we don't need to process it
+            console.log(`[fetch] ${line}`);
+        }
+    }
 }
 
 async function* asyncSpawn(command: string, args: string[], options: { cwd: string, env?: Record<string, string> }): AsyncGenerator<string> {
@@ -199,6 +208,9 @@ async function* asyncSpawn(command: string, args: string[], options: { cwd: stri
     });
     const errorResult: Buffer[] = [];
     let errorObj: unknown;
+    p.stderr.on("data", (chunk) => {
+        errorResult.push(chunk);
+    })
     p.on("error", (error) => {
         errorObj = error;
     });

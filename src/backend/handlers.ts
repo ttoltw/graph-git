@@ -21,6 +21,12 @@ export function init(window: BrowserWindow) {
     console.log(`[get-log] Selected folder: ${folder}`);
     return gitLog(folder);
   });
+  window.webContents.ipc.handle("git:fetch", async (event, ...args) => {
+    const folder = args[0];
+    const remote = args[1];
+    console.log(`[fetch] Selected folder: ${folder}, remote: ${remote || 'all'}`);
+    return gitFetch(folder, remote);
+  });
   if (initialized) return;
 
   ipcMain.handle("config:get", async (event, ...args) => {
@@ -66,6 +72,13 @@ async function gitLog(folder: string, options?: LogOptions) {
   return log;
 }
 
+function getGit(folder: string) {
+  if (!folder) throw new Error('No folder selected');
+  return new GitWrap(folder);
+}
+async function gitFetch(folder: string, remote?: string) {
+  await getGit(folder).fetch(remote);
+}
 
 export function configGet() {
   const config = store.get();

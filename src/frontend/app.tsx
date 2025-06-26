@@ -66,11 +66,25 @@ const App: React.FC = () => {
             setGraph(null);
         }
     }
+    const onFetchBtn = async () => {
+        try {
+            if (!cwd) {
+                throw new Error('No folder selected');
+            }
+            await bridge.git.fetch(cwd);
+            // Optionally reload the graph after fetch
+            await onReloadBtn();
+        } catch (e) {
+            console.error('Fetch error:', e);
+            setError(e.message);
+        }
+    }
     return (
         <div className="app-container">
             <div className="toolbar">
                 <button title='open git folder' onClick={onOpenBtn}>open</button>
                 <button title='reload' disabled={!cwd} onClick={() => onReloadBtn()}>reload</button>
+                <button title='fetch' disabled={!cwd} onClick={onFetchBtn}>fetch</button>
                 <select title='recent folders'
                     value={cwd || ''}
                     onChange={(e) => {
