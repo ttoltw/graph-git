@@ -12,7 +12,13 @@
   "author": "",
   "license": "ISC",
   "description": "A simple mutex implementation for TypeScript/JavaScript",
-  "keywords": ["mutex", "lock", "synchronization", "async", "typescript"],
+  "keywords": [
+    "mutex",
+    "lock",
+    "synchronization",
+    "async",
+    "typescript"
+  ],
   "devDependencies": {
     "@types/node": "^22.13.10",
     "@types/jest": "^29.5.12",
@@ -21,4 +27,4 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
-} 
+}

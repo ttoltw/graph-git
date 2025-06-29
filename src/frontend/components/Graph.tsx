@@ -1,20 +1,14 @@
 import Dagre from "@dagrejs/dagre";
 import React, { ReactNode } from "react";
-import type { GitLog, GitRef } from '@g/git-wrap';
+import type { GitLog, GitRef } from "@g/git-wrap";
 
 type NodeData = {
   log: GitLog;
-}
+};
 
 type NodeProps = Dagre.Node<NodeData>;
 
-const Node: React.FC<NodeProps> = ({
-  log,
-  width,
-  height,
-  x,
-  y,
-}) => {
+const Node: React.FC<NodeProps> = ({ log, width, height, x, y }) => {
   // Helper function to determine the CSS class based on ref name
   const getRefClass = (ref: GitRef) => {
     let className = "git-ref-other";
@@ -34,13 +28,15 @@ const Node: React.FC<NodeProps> = ({
     return className;
   };
 
-  const refs = log?.refs || [{
-    hash: log.hash,
-    name: log.hash.substring(0, 7),
-    type: "commit",
-    remote: false,
-    fullname: log.hash,
-  }];
+  const refs = log?.refs || [
+    {
+      hash: log.hash,
+      name: log.hash.substring(0, 7),
+      type: "commit",
+      remote: false,
+      fullname: log.hash,
+    },
+  ];
   return (
     <g transform={`translate(${x},${y})`}>
       {refs.map((ref, i) => {
@@ -77,16 +73,7 @@ const RoundedLabel: React.FC<{
   const borderRadius = 5;
   let r: ReactNode = null;
   if (first === last) {
-    r = (
-      <rect
-        x={0}
-        y={0}
-        width={width}
-        height={height}
-        rx={first ? 5 : 0}
-        ry={first ? 5 : 0}
-      />
-    );
+    r = <rect x={0} y={0} width={width} height={height} rx={first ? 5 : 0} ry={first ? 5 : 0} />;
   } else if (first) {
     r = (
       <path
@@ -154,24 +141,30 @@ const ArrowHead: React.FC = () => {
     </marker>
   );
 };
-export const Graph: React.FC<{ graph: Dagre.graphlib.Graph<NodeData>, scrollTo?: (x: number, y: number) => void }> = ({
-  graph,
-  scrollTo,
-}) => {
+export const Graph: React.FC<{
+  graph: Dagre.graphlib.Graph<NodeData>;
+  scrollTo?: (x: number, y: number) => void;
+}> = ({ graph, scrollTo }) => {
   return (
-    <svg width={graph.graph().width} height={graph.graph().height} onDoubleClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // scroll to the head node, make it the center of the screen
-      const headNode = graph.nodes().find((node) => graph.node(node).log.refs?.some(ref => ref.current));
-      if (headNode) {
-        const node = graph.node(headNode);
-        const svg = e.currentTarget;
-        const { x, y } = node;
+    <svg
+      width={graph.graph().width}
+      height={graph.graph().height}
+      onDoubleClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // scroll to the head node, make it the center of the screen
+        const headNode = graph
+          .nodes()
+          .find((node) => graph.node(node).log.refs?.some((ref) => ref.current));
+        if (headNode) {
+          const node = graph.node(headNode);
+          const svg = e.currentTarget;
+          const { x, y } = node;
 
-        scrollTo && scrollTo(x, y);
-      }
-    }}>
+          scrollTo && scrollTo(x, y);
+        }
+      }}
+    >
       <defs>
         <ArrowHead />
       </defs>

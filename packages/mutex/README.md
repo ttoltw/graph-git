@@ -11,16 +11,16 @@ npm install @g/mutex
 ## Usage
 
 ```typescript
-import { Mutex } from '@g/mutex';
+import { Mutex } from "@g/mutex";
 
 const mutex = new Mutex();
 
 async function criticalSection() {
   const release = await mutex.acquire();
-  
+
   try {
     // Critical section code
-    console.log('Executing critical section operation');
+    console.log("Executing critical section operation");
   } finally {
     // Ensure the lock is released
     release();
@@ -58,4 +58,4 @@ npm test
 
 ## License
 
-ISC 
+ISC

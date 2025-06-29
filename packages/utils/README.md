@@ -17,15 +17,17 @@ npm install @g/utils
 Generates a multi-level sort function that applies multiple sort criteria in sequence.
 
 **Type Definition:**
+
 ```typescript
 type SortFn<T> = (a: T, b: T) => number;
 
-function genMultiSort<T>(...sortFns: SortFn<T>[]): SortFn<T>
+function genMultiSort<T>(...sortFns: SortFn<T>[]): SortFn<T>;
 ```
 
 **Example:**
+
 ```typescript
-import { genMultiSort } from '@g/utils';
+import { genMultiSort } from "@g/utils";
 
 interface User {
   name: string;
@@ -34,9 +36,9 @@ interface User {
 }
 
 const users: User[] = [
-  { name: 'Alice', age: 25, score: 100 },
-  { name: 'Bob', age: 25, score: 90 },
-  { name: 'Alice', age: 30, score: 95 }
+  { name: "Alice", age: 25, score: 100 },
+  { name: "Bob", age: 25, score: 90 },
+  { name: "Alice", age: 30, score: 95 },
 ];
 
 // Define individual sort functions
@@ -62,12 +64,15 @@ users.sort(multiSort);
 Creates a combined sort function that applies multiple sort criteria in the order provided.
 
 **Parameters:**
+
 - `sortFns`: Array of sort functions to apply in sequence
 
 **Returns:**
+
 - A combined sort function that applies all criteria in order
 
 **Behavior:**
+
 - Applies each sort function in sequence
 - If a sort function returns a non-zero value, that result is returned
 - If all sort functions return 0, the final result is 0
@@ -95,4 +100,4 @@ npm run build
 
 ## License
 
-ISC 
+ISC

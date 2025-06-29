@@ -10,11 +10,12 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
     "plugin:import/electron",
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "prettier"
   ],
-  "plugins": [
-    "react-refresh", 
-    "react-hooks"
-  ],
-  "parser": "@typescript-eslint/parser"
+  "plugins": ["react-refresh", "react-hooks", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "prettier/prettier": "error"
+  }
 }

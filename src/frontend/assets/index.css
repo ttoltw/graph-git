@@ -1,98 +1,104 @@
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: 0;
   padding: 0; /* Remove padding to prevent app overflow */
   height: 100vh; /* Ensure body takes full viewport height */
   overflow: hidden; /* Prevent scrolling on the body */
 }
 
-.git-ref:hover{
+.git-ref:hover {
   cursor: pointer;
   stroke: black;
   stroke-width: 3px;
 }
-.git-ref{
+.git-ref {
   stroke-width: 1px;
 }
 .git-ref > text {
   stroke: none;
 }
-.git-ref > rect, .git-ref > path {
+.git-ref > rect,
+.git-ref > path {
   stroke: black;
   fill: white;
 }
 
-.git-ref-stash > rect, .git-ref-stash > path {
+.git-ref-stash > rect,
+.git-ref-stash > path {
   fill: #808080;
 }
 .git-ref-stash > text {
   fill: black;
 }
 
-.git-ref-remote > rect, .git-ref-remote > path {
+.git-ref-remote > rect,
+.git-ref-remote > path {
   fill: #ffddaa;
 }
 
-.git-ref-tag > rect, .git-ref-tag > path {
-  fill: #FFFF00;
+.git-ref-tag > rect,
+.git-ref-tag > path {
+  fill: #ffff00;
 }
 .git-ref-tag > text {
   fill: black;
 }
 
-.git-ref-head > rect, .git-ref-head > path {
-  fill: #FF0000;
+.git-ref-head > rect,
+.git-ref-head > path {
+  fill: #ff0000;
 }
 .git-ref-head > text {
   fill: white;
 }
 
-.git-ref-branch > rect, .git-ref-branch > path {
-  fill: #00C300;
+.git-ref-branch > rect,
+.git-ref-branch > path {
+  fill: #00c300;
 }
 .git-ref-branch > text {
   fill: white;
 }
 
-.git-ref-commit > rect, .git-ref-commit > path {
-  fill: #E8E8FF;
+.git-ref-commit > rect,
+.git-ref-commit > path {
+  fill: #e8e8ff;
 }
 .git-ref-commit > text {
   fill: black;
 }
 
 .app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .toolbar {
-    flex: 0 0 auto;
-    background-color: #f4f4f4;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
+  flex: 0 0 auto;
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
 }
 
 .content {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 10px;
-    background-color: #fff;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #fff;
 }
 
 .status-bar {
-    flex: 0 0 auto;
-    background-color: #f4f4f4;
-    padding: 10px;
-    border-top: 1px solid #ccc;
-    text-align: center;
+  flex: 0 0 auto;
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  text-align: center;
 }
 
 .bottom-container {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    background-color: #f4f4f4;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f4f4;
 }

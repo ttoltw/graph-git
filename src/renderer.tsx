@@ -26,18 +26,18 @@
  * ```
  */
 
-import React from 'react';
-import App from './frontend/app';
-import { createRoot } from 'react-dom/client';
+import React from "react";
+import App from "./frontend/app";
+import { createRoot } from "react-dom/client";
 console.log('👋 This message is being logged by "renderer.ts", included via Vite');
 
-const rootElement = document.getElementById('app');
+const rootElement = document.getElementById("app");
 if (!rootElement) {
-    throw new Error('Root element not found');
+  throw new Error("Root element not found");
 }
 const root = createRoot(rootElement);
 root.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
 );

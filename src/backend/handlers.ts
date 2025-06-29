@@ -10,7 +10,6 @@ let initialized = false;
 const userDataPath = app.getPath("userData");
 const configPath = `${userDataPath}/config.json`;
 
-
 export function init(window: BrowserWindow) {
   console.log("init handlers");
   window.webContents.ipc.handle("open:folder", async (event, ...args) => {
@@ -24,7 +23,7 @@ export function init(window: BrowserWindow) {
   window.webContents.ipc.handle("git:fetch", async (event, ...args) => {
     const folder = args[0];
     const remote = args[1];
-    console.log(`[fetch] Selected folder: ${folder}, remote: ${remote || 'all'}`);
+    console.log(`[fetch] Selected folder: ${folder}, remote: ${remote || "all"}`);
     return gitFetch(folder, remote);
   });
   if (initialized) return;
@@ -63,7 +62,7 @@ async function getFolder(window: BrowserWindow): Promise<string | null> {
 }
 async function gitLog(folder: string, options?: LogOptions) {
   if (!folder) {
-    console.error('[get-log] No folder selected');
+    console.error("[get-log] No folder selected");
     return null;
   }
   console.log(`[get-log] Selected folder: ${folder}`);
@@ -73,7 +72,7 @@ async function gitLog(folder: string, options?: LogOptions) {
 }
 
 function getGit(folder: string) {
-  if (!folder) throw new Error('No folder selected');
+  if (!folder) throw new Error("No folder selected");
   return new GitWrap(folder);
 }
 async function gitFetch(folder: string, remote?: string) {
@@ -84,7 +83,6 @@ export function configGet() {
   const config = store.get();
   console.log("configGet:", config);
   return config;
-
 }
 
 export function configSet(key: string, value: unknown) {

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import type { GitLog } from '@g/git-wrap';
+import type { GitLog } from "@g/git-wrap";
 
 type Config = Record<string, unknown>;
 

@@ -16,7 +16,7 @@ GraphGit is designed to provide a cross-platform alternative to TortoiseGit's Re
 
 ## Screenshots
 
-*Screenshots will be added here*
+_Screenshots will be added here_
 
 ## Installation
 
@@ -29,17 +29,20 @@ GraphGit is designed to provide a cross-platform alternative to TortoiseGit's Re
 ### Development Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/ttoltw/graph-git.git
 cd graph-git
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm start
 ```
@@ -104,4 +107,4 @@ For more information about the MIT License, visit: https://opensource.org/licens
 
 - [Dagre](https://github.com/dagrejs/dagre) for graph layout algorithms
 - [Electron Forge](https://www.electronforge.io/) for packaging and distribution
-- [React](https://reactjs.org/) for the user interface framework 
+- [React](https://reactjs.org/) for the user interface framework
