@@ -1,9 +1,10 @@
 /// <reference types="@types/node" />
 
 import { BrowserWindow, dialog, ipcMain, app } from "electron";
-import { GitWrap, LogOptions } from "@g/git-wrap";
 import { Store } from "./store";
 import fs from "node:fs";
+import { registerStreamChannel } from "./stream-channel";
+import { gitExecutor, setCwd } from "./gitExecutor";
 
 const store = new Store();
 let initialized = false;
@@ -13,30 +14,28 @@ const configPath = `${userDataPath}/config.json`;
 export function init(window: BrowserWindow) {
   console.log("init handlers");
   window.webContents.ipc.handle("open:folder", async (event, ...args) => {
-    return getFolder(window);
+    const folder = await getFolder(window);
+    setCwd(folder);
+    return folder;
   });
-  window.webContents.ipc.handle("git:log", async (event, ...args) => {
-    const folder = args[0];
-    console.log(`[get-log] Selected folder: ${folder}`);
-    return gitLog(folder);
-  });
-  window.webContents.ipc.handle("git:fetch", async (event, ...args) => {
-    const folder = args[0];
-    const remote = args[1];
-    console.log(`[fetch] Selected folder: ${folder}, remote: ${remote || "all"}`);
-    return gitFetch(folder, remote);
-  });
+
   if (initialized) return;
+
+  ipcMain.handle("cwd:set", async (event, folder: string) => {
+    setCwd(folder);
+  });
 
   ipcMain.handle("config:get", async (event, ...args) => {
     return configGet();
   });
+
   ipcMain.handle("config:set", async (event, ...args) => {
     const key = args[0];
     const value = args[1];
     console.log("Config set:", key, value);
     configSet(key, value);
   });
+
   if (!fs.existsSync(userDataPath)) {
     console.log("Creating user data folder");
     fs.mkdirSync(userDataPath, { recursive: true });
@@ -44,6 +43,7 @@ export function init(window: BrowserWindow) {
     console.log("Loading config file");
     const data = fs.readFileSync(configPath, "utf-8");
     store.set(JSON.parse(data));
+    setCwd(store.get("cwd") as string);
   }
   initialized = true;
 }
@@ -51,6 +51,7 @@ export function init(window: BrowserWindow) {
 async function getFolder(window: BrowserWindow): Promise<string | null> {
   const result = await dialog.showOpenDialog(window, {
     properties: ["openDirectory"],
+    defaultPath: store.get("cwd") as string,
   });
   if (!result.canceled && result.filePaths.length > 0) {
     const selectedFolder = result.filePaths[0];
@@ -60,24 +61,11 @@ async function getFolder(window: BrowserWindow): Promise<string | null> {
   console.log("User canceled the dialog or no folder selected");
   return null;
 }
-async function gitLog(folder: string, options?: LogOptions) {
-  if (!folder) {
-    console.error("[get-log] No folder selected");
-    return null;
-  }
-  console.log(`[get-log] Selected folder: ${folder}`);
-  const git = new GitWrap(folder);
-  const log = await git.log(options);
-  return log;
-}
 
-function getGit(folder: string) {
-  if (!folder) throw new Error("No folder selected");
-  return new GitWrap(folder);
-}
-async function gitFetch(folder: string, remote?: string) {
-  await getGit(folder).fetch(remote);
-}
+registerStreamChannel("git:command", ([command, ...args]: [string, string, ...string[]]) => {
+  console.log(`[git:command] Running command: ${command}, args: ${JSON.stringify(args)}`);
+  return gitExecutor(command, ...args);
+});
 
 export function configGet() {
   const config = store.get();
@@ -87,6 +75,9 @@ export function configGet() {
 
 export function configSet(key: string, value: unknown) {
   store.set(key, value);
+  if (key === "cwd") {
+    setCwd(value as string);
+  }
   if (!fs.existsSync(configPath)) {
     console.log("Creating config file");
     fs.mkdirSync(userDataPath, { recursive: true });

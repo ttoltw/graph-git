@@ -6,8 +6,7 @@ type Config = Record<string, unknown>;
 declare global {
   declare const bridge: {
     git: {
-      getLog: (folder: string) => Promise<GitLog[]>;
-      fetch: (folder: string, remote?: string) => Promise<void>;
+      exec: (args: string[] = []) => Promise<string>;
     };
     config: {
       get: () => Promise<Config>;

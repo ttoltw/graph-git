@@ -3,7 +3,18 @@ import React, { useState } from "react";
 import Dagre from "@dagrejs/dagre";
 import { Graph } from "./components/Graph";
 import { useConfig } from "./hooks";
-import type { GitLog } from "@g/git-wrap";
+import { GitWrap, GitLog } from "@g/git-wrap";
+
+import { portToAsyncGenerator } from "../shared/portToAsyncGenerator";
+import { getGitStream } from "./bridgeChannel";
+
+const git = new GitWrap(async function* (...args): AsyncGenerator<string> {
+  const streamid = await bridge.git.exec(args);
+  const port: MessagePort = await getGitStream(streamid);
+  for await (const data of portToAsyncGenerator<string>(port)) {
+    yield data;
+  }
+});
 
 const App: React.FC = () => {
   const [cwd, setCwd] = useConfig<string | null>("cwd", null);
@@ -31,8 +42,10 @@ const App: React.FC = () => {
       if (!folder) {
         throw new Error("No folder selected");
       }
+
+      await setCwd(folder);
       console.log(`Selected folder: ${folder}`);
-      const log = await bridge.git.getLog(folder);
+      const log = await git.log();
 
       const graph = new Dagre.graphlib.Graph<{ log: GitLog }>();
       graph.setGraph({ rankdir: "TD" }); // top to bottom
@@ -55,7 +68,6 @@ const App: React.FC = () => {
       });
       Dagre.layout(graph);
       setGraph(graph);
-      setCwd(folder);
       setRecent((prev) => {
         const newRecent = [...new Set([folder, ...prev])];
         return newRecent.slice(0, 10);
@@ -73,7 +85,7 @@ const App: React.FC = () => {
       if (!cwd) {
         throw new Error("No folder selected");
       }
-      await bridge.git.fetch(cwd);
+      await git.fetch();
       // Optionally reload the graph after fetch
       await onReloadBtn();
     } catch (e) {
