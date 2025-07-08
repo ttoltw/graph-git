@@ -1,5 +1,5 @@
 import Dagre from "@dagrejs/dagre";
-import React, { ReactNode } from "react";
+import React, { ReactNode, forwardRef, useImperativeHandle, useState } from "react";
 import type { GitLog, GitRef } from "@g/git-wrap";
 
 type NodeData = {
@@ -141,14 +141,66 @@ const ArrowHead: React.FC = () => {
     </marker>
   );
 };
-export const Graph: React.FC<{
-  graph: Dagre.graphlib.Graph<NodeData>;
-  scrollTo?: (x: number, y: number) => void;
-}> = ({ graph, scrollTo }) => {
+
+export type ZoomRatio = number | "fit" | "reset" | "zoomIn" | "zoomOut";
+
+export interface GraphRef {
+  zoom: (ratio: ZoomRatio) => void;
+}
+
+export const Graph = forwardRef<
+  GraphRef,
+  {
+    graph: Dagre.graphlib.Graph<NodeData>;
+    scrollTo?: (x: number, y: number) => void;
+  }
+>(({ graph, scrollTo }, ref) => {
+  const refContainer = React.useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  const zoom = (ratio: ZoomRatio) => {
+    switch (ratio) {
+      case "fit": {
+        // Calculate fit to view scale based on graph dimensions
+        const graphWidth = graph.graph().width;
+        const graphHeight = graph.graph().height;
+        const container = refContainer.current;
+        if (container) {
+          const containerWidth = container.clientWidth;
+          const containerHeight = container.clientHeight;
+          const scaleX = containerWidth / graphWidth;
+          const scaleY = containerHeight / graphHeight;
+          const fitScale = Math.min(scaleX, scaleY, 1) * 1; // 90% to add some padding
+          setScale(fitScale);
+        }
+        break;
+      }
+      case "reset":
+        setScale(1);
+        break;
+      case "zoomIn":
+        setScale((prevScale) => prevScale * 1.2);
+        break;
+      case "zoomOut":
+        setScale((prevScale) => prevScale * 0.8);
+        break;
+      default:
+        // Handle numeric ratio
+        setScale(ratio);
+        break;
+    }
+  };
+  // Expose zoom method to external callers
+  useImperativeHandle(ref, () => ({
+    zoom: (ratio: ZoomRatio) => {
+      zoom(ratio);
+    },
+  }));
+
   return (
     <svg
-      width={graph.graph().width}
-      height={graph.graph().height}
+      width={graph.graph().width * scale}
+      height={graph.graph().height * scale}
       onDoubleClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -168,12 +220,14 @@ export const Graph: React.FC<{
       <defs>
         <ArrowHead />
       </defs>
-      {graph.nodes().map((v) => (
-        <Node key={v} {...graph.node(v)} />
-      ))}
-      {graph.edges().map((e) => (
-        <Edge key={`${e.v}-${e.w}`} edge={graph.edge(e)} />
-      ))}
+      <g transform={`scale(${scale})`}>
+        {graph.nodes().map((v) => (
+          <Node key={v} {...graph.node(v)} />
+        ))}
+        {graph.edges().map((e) => (
+          <Edge key={`${e.v}-${e.w}`} edge={graph.edge(e)} />
+        ))}
+      </g>
     </svg>
   );
-};
+});

@@ -1,7 +1,7 @@
 import "./assets/index.css";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Dagre from "@dagrejs/dagre";
-import { Graph } from "./components/Graph";
+import { Graph, GraphRef, ZoomRatio } from "./components/Graph";
 import { useConfig } from "./hooks";
 import { GitWrap, GitLog } from "@g/git-wrap";
 
@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [graph, setGraph] = useState<Dagre.graphlib.Graph<{ log: GitLog }> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const refContainer = React.useRef<HTMLDivElement>(null);
+  const graphRef = useRef<GraphRef>(null);
   const onOpenBtn = async () => {
     try {
       const folder = await bridge.getFolder();
@@ -93,6 +94,11 @@ const App: React.FC = () => {
       setError(e.message);
     }
   };
+
+  const handleGraphZoom = (ratio: ZoomRatio) => {
+    graphRef.current?.zoom(ratio);
+  };
+
   return (
     <div className="app-container">
       <div className="toolbar">
@@ -118,12 +124,27 @@ const App: React.FC = () => {
             </option>
           ))}
         </select>
+        <div className="zoom-controls">
+          <button title="zoom in" disabled={!graph} onClick={() => handleGraphZoom("zoomIn")}>
+            +
+          </button>
+          <button title="zoom out" disabled={!graph} onClick={() => handleGraphZoom("zoomOut")}>
+            -
+          </button>
+          <button title="reset zoom" disabled={!graph} onClick={() => handleGraphZoom("reset")}>
+            100%
+          </button>
+          <button title="fit to view" disabled={!graph} onClick={() => handleGraphZoom("fit")}>
+            fit
+          </button>
+        </div>
       </div>
       <div ref={refContainer} className="content">
         {error && <div className="error">{error}</div>}
         {graph && (
           <div className="svg-container">
             <Graph
+              ref={graphRef}
               graph={graph}
               scrollTo={(x, y) => {
                 const cnt = refContainer.current;
