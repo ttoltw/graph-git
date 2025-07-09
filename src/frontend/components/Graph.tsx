@@ -1,6 +1,7 @@
 import Dagre from "@dagrejs/dagre";
 import React, { ReactNode, forwardRef, useImperativeHandle, useState } from "react";
 import type { GitLog, GitRef } from "@g/git-wrap";
+import { ContentPanel } from "./ContentPanel";
 
 type NodeData = {
   log: GitLog;
@@ -8,7 +9,13 @@ type NodeData = {
 
 type NodeProps = Dagre.Node<NodeData>;
 
-const Node: React.FC<NodeProps> = ({ log, width, height, x, y }) => {
+export interface NodeRef {
+  scrollIntoView: () => void;
+}
+
+const Node = forwardRef<NodeRef, NodeProps>(({ log, width, height, x, y }, ref) => {
+  const gRef = React.useRef<SVGGElement>(null);
+
   // Helper function to determine the CSS class based on ref name
   const getRefClass = (ref: GitRef) => {
     let className = "git-ref-other";
@@ -37,8 +44,21 @@ const Node: React.FC<NodeProps> = ({ log, width, height, x, y }) => {
       fullname: log.hash,
     },
   ];
+
+  // Expose scrollIntoView method to parent component
+  useImperativeHandle(ref, () => ({
+    scrollIntoView: () => {
+      // Call scrollIntoView on the g element
+      gRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    },
+  }));
+
   return (
-    <g transform={`translate(${x},${y})`}>
+    <g ref={gRef} transform={`translate(${x},${y})`}>
       {refs.map((ref, i) => {
         const refClass = getRefClass(ref);
         const rectY = -height / 2 + i * 20;
@@ -58,7 +78,7 @@ const Node: React.FC<NodeProps> = ({ log, width, height, x, y }) => {
       })}
     </g>
   );
-};
+});
 
 const RoundedLabel: React.FC<{
   label: string;
@@ -145,25 +165,27 @@ const ArrowHead: React.FC = () => {
 export type ZoomRatio = number | "fit" | "reset" | "zoomIn" | "zoomOut";
 
 export interface GraphRef {
+  scrollTo: (hash: string) => void;
   zoom: (ratio: ZoomRatio) => void;
 }
 
 export const Graph = forwardRef<
   GraphRef,
   {
-    graph: Dagre.graphlib.Graph<NodeData>;
-    scrollTo?: (x: number, y: number) => void;
+    error: string | null;
+    graph?: Dagre.graphlib.Graph<NodeData>;
   }
->(({ graph, scrollTo }, ref) => {
+>(({ error, graph }, ref) => {
   const refContainer = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const nodeRefs = React.useRef<Map<string, NodeRef>>(new Map());
 
   const zoom = (ratio: ZoomRatio) => {
     switch (ratio) {
       case "fit": {
         // Calculate fit to view scale based on graph dimensions
-        const graphWidth = graph.graph().width;
-        const graphHeight = graph.graph().height;
+        const graphWidth = graph?.graph().width || 0;
+        const graphHeight = graph?.graph().height || 0;
         const container = refContainer.current;
         if (container) {
           const containerWidth = container.clientWidth;
@@ -190,44 +212,65 @@ export const Graph = forwardRef<
         break;
     }
   };
-  // Expose zoom method to external callers
+  const scrollToHash = (hash: string) => {
+    const nodeRef = nodeRefs.current.get(hash);
+    if (nodeRef) {
+      nodeRef.scrollIntoView();
+    }
+  };
+  // Expose scrollTo and zoom methods to external callers
   useImperativeHandle(ref, () => ({
+    scrollTo: (hash: string) => {
+      scrollToHash(hash);
+    },
     zoom: (ratio: ZoomRatio) => {
       zoom(ratio);
     },
   }));
 
   return (
-    <svg
-      width={graph.graph().width * scale}
-      height={graph.graph().height * scale}
-      onDoubleClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        // scroll to the head node, make it the center of the screen
-        const headNode = graph
-          .nodes()
-          .find((node) => graph.node(node).log.refs?.some((ref) => ref.current));
-        if (headNode) {
-          const node = graph.node(headNode);
-          const svg = e.currentTarget;
-          const { x, y } = node;
-
-          scrollTo && scrollTo(x, y);
-        }
-      }}
-    >
-      <defs>
-        <ArrowHead />
-      </defs>
-      <g transform={`scale(${scale})`}>
-        {graph.nodes().map((v) => (
-          <Node key={v} {...graph.node(v)} />
-        ))}
-        {graph.edges().map((e) => (
-          <Edge key={`${e.v}-${e.w}`} edge={graph.edge(e)} />
-        ))}
-      </g>
-    </svg>
+    <ContentPanel ref={refContainer}>
+      {error && <div className="error">{error}</div>}
+      <svg
+        width={graph?.graph().width * scale}
+        height={graph?.graph().height * scale}
+        onDoubleClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // scroll to the head node, make it the center of the screen
+          const headNode = graph
+            ?.nodes()
+            .find((node) => graph.node(node).log.refs?.some((ref) => ref.current));
+          if (headNode) {
+            const nodeRef = nodeRefs.current.get(headNode);
+            if (nodeRef) {
+              nodeRef.scrollIntoView();
+            }
+          }
+        }}
+      >
+        <defs>
+          <ArrowHead />
+        </defs>
+        <g transform={`scale(${scale})`}>
+          {graph?.nodes().map((v) => (
+            <Node
+              key={v}
+              ref={(nodeRef) => {
+                if (nodeRef) {
+                  nodeRefs.current.set(v, nodeRef);
+                } else {
+                  nodeRefs.current.delete(v);
+                }
+              }}
+              {...graph?.node(v)}
+            />
+          ))}
+          {graph?.edges().map((e) => (
+            <Edge key={`${e.v}-${e.w}`} edge={graph?.edge(e)} />
+          ))}
+        </g>
+      </svg>
+    </ContentPanel>
   );
 });

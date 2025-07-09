@@ -2,8 +2,9 @@ import "./assets/index.css";
 import React, { useState, useRef } from "react";
 import Dagre from "@dagrejs/dagre";
 import { Graph, GraphRef, ZoomRatio } from "./components/Graph";
+import { Sidebar } from "./components/Sidebar";
 import { useConfig } from "./hooks";
-import { GitWrap, GitLog } from "@g/git-wrap";
+import { GitWrap, GitLog, GitRef } from "@g/git-wrap";
 
 import { portToAsyncGenerator } from "../shared/portToAsyncGenerator";
 import { getGitStream } from "./bridgeChannel";
@@ -21,7 +22,6 @@ const App: React.FC = () => {
   const [recent, setRecent] = useConfig<string[]>("recent", []);
   const [graph, setGraph] = useState<Dagre.graphlib.Graph<{ log: GitLog }> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const refContainer = React.useRef<HTMLDivElement>(null);
   const graphRef = useRef<GraphRef>(null);
   const onOpenBtn = async () => {
     try {
@@ -95,6 +95,11 @@ const App: React.FC = () => {
     }
   };
 
+  const handleRefClick = (gitRef: GitRef) => {
+    console.log("handleRefClick", gitRef);
+    graphRef.current?.scrollTo(gitRef.hash);
+  };
+
   const handleGraphZoom = (ratio: ZoomRatio) => {
     graphRef.current?.zoom(ratio);
   };
@@ -139,28 +144,9 @@ const App: React.FC = () => {
           </button>
         </div>
       </div>
-      <div ref={refContainer} className="content">
-        {error && <div className="error">{error}</div>}
-        {graph && (
-          <div className="svg-container">
-            <Graph
-              ref={graphRef}
-              graph={graph}
-              scrollTo={(x, y) => {
-                const cnt = refContainer.current;
-                console.log("scrollTo", x, y, cnt);
-
-                if (cnt) {
-                  cnt.scrollTo({
-                    top: y - cnt.clientHeight / 2,
-                    left: x - cnt.clientWidth / 2,
-                    behavior: "smooth",
-                  });
-                }
-              }}
-            />
-          </div>
-        )}
+      <div className="content">
+        <Sidebar graph={graph} onRefClick={handleRefClick} />
+        <Graph ref={graphRef} error={error} graph={graph} />
       </div>
       <div className="bottom-container">
         <div className="status-bar">
